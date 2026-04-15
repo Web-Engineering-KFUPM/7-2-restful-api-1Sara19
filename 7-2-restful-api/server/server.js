@@ -16,10 +16,28 @@ app.use(express.json());
 
 await connectDB(process.env.MONGO_URL);
 
+app.get("/", (req, res) => {
+  res.send("API is running");
+});
+
 // api/songs (Read all songs)
 app.get("/api/songs", async (req, res) => {
   const rows = await Song.find().sort({ createdAt: -1 });
   res.json(rows);
+});
+
+app.get("/api/songs/:id", async (req, res) => {
+  try {
+    const s = await Song.findById(req.params.id);
+
+    if (!s) {
+      return res.status(404).json({ message: "Song not found" });
+    }
+
+    res.json(s);
+  } catch (err) {
+    res.status(400).json({ message: err.message || "Invalid song id" });
+  }
 });
 
 // api/songs (Insert song)
